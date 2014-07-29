@@ -1,0 +1,162 @@
+/**
+*
+*	@author : Fabian Fuentealba Acuña
+*	@since : 03-07-2014
+*	@country : Chile
+*
+*/
+
+
+(function($){
+
+	$.close_iframepop = function(onclose_function){
+
+		$("#iframepop").fadeOut(options_frame.delay,function(){
+			$("#back").remove();
+			onclose_function();
+		});
+	}	
+
+	$.fn.extend({
+
+		iframepop : function(options_frame_new){
+
+			$("#iframe_pop_content").css({
+				'display':'hidden'
+			});
+
+			$(window).keydown(function(e){
+
+				if(e.which == 27){
+
+					$.close_iframepop();
+				}
+
+			});						
+
+			return this.each(function(){
+
+				$(this).click(function(e){					
+
+					e.preventDefault();
+					$("#iframepop,#back").remove();
+
+					var options_frame_old = {
+						height : '90%',
+						width : '90%',
+						href : $(this).attr("href"),
+						position : 'fixed', //fixed or absolute
+						closetext : 'Cerrar ventana', //Text for show in iframe window
+						close_on_click : false,
+						delay : 600	,
+						iframe : true ,
+						onclose : false,
+						open : false
+					}
+
+					options_frame = $.extend(options_frame_old,options_frame_new);					
+
+					if($.trim(options_frame.href) != '' ){
+
+						var append ;						
+
+						if(options_frame.width.indexOf("%") != '-1' ){
+
+							var number = options_frame.width.split("%");
+							var ancho = parseInt(($(window).width()) * (number[0] / 100 )) ;
+							//alert($(window).width());
+						}else{
+							var ancho = options_frame.width;
+						}
+
+						if(options_frame.height.indexOf("%") != '-1' ){
+
+							var number = options_frame.height.split("%");
+							var alto = parseInt($(window).height() * (number[0] / 100 )) ;
+							
+						}else{
+							var alto = options_frame.height;
+						}
+
+
+						var html_iframe =  '<div id="iframepop" >' +
+							'<iframe src="' + options_frame.href + '" width="100%" frameborder="0" height="' + (parseInt(alto) - 35 ) + '" scrolling="auto"></iframe>' +
+							'<div id="closeframe" style="text-align:right;cursor:pointer;padding-top:3px;font-weight:bold">' + options_frame.closetext + '</div>' +
+						'</div>';
+
+						if(options_frame.iframe == true){
+
+							append = html_iframe;
+
+						}else{
+
+							append = $("#iframe_pop_content").html();
+
+						}
+
+
+						$("body").append('<div id="back"></div').append(append);
+						//css for background
+						$("#back").css({
+							'position':'fixed',
+							'background-color':'#FFFFFF',
+							'left' : 0,
+							'right' : 0,
+							'width' : 'auto',
+							'top' : 0,
+							'bottom' : 0,
+							'z-index':999,
+							'opacity' : '.5',
+							'filter' : 'alpha(opacity:50)'
+							
+						});
+
+						//css for de border of the iframe
+						$("#iframepop").css({
+							'padding':'10px',
+							'border-radius': '5px',
+							'position' : options_frame.position,
+							'background-color' : '#FFFFFF',
+							'left': '50%',
+							'width' : parseInt(ancho) - 20 + 'px',
+							'margin-left' : '-' + (ancho / 2) + 'px',
+							'top' : '50%',
+							'height' : parseInt(alto) - 20 + 'px',
+							'margin-top' : ((alto  / 2) * -1) + 'px',
+							'box-shadow':'0 0 15px #CCCCCC',
+							'z-index' : 1000,
+							'border':'#CCCCCC 1px solid',
+							'display':'none'
+
+						}).fadeIn(options_frame.delay);
+
+						$("#closeframe").click(function(){
+							
+							$.close_iframepop(options_frame.onclose);
+
+						});
+
+						if(options_frame.close_on_click == true){
+
+							$("#back").attr("title","Haga click aqui para cerrar");
+
+							$("#back").click(function(){
+
+								$.close_iframepop(options_frame.onclose);
+
+							});
+						}
+
+					}else{
+
+						alert("Error 404 : Needs url to load.");
+
+					}
+				});
+
+			});
+		},
+
+	});
+
+})(jQuery);
